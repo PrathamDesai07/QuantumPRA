@@ -1,0 +1,338 @@
+--- Page 1 ---
+                    
+PAPER • OPEN ACCESS
+A magic state’s fidelity can be superior to the
+operations that created it
+To cite this article: Ying Li 2015 New J. Phys.  17 023037 
+ 
+View the article online  for updates and enhancements. You may also like 
+Quasi-autonomous quantum thermal 
+machines and quantum to classical energy 
+flow
+Max F Frenzel, David Jennings and Terry 
+Rudolph-
+Magic state distillation and cost analysis in 
+fault-tolerant universal quantum 
+computation 
+Yiting Liu, Zhi Ma, Lan Luo et al. -
+The resource theory of stabilizer quantum 
+computation 
+Victor Veitch, S A Hamed Mousavian, 
+Daniel Gottesman et al. -
+This content was downloaded from IP address 101.71.38.26 on 12/12/2025 at 02:01
+
+--- Page 2 ---
+New J. Phys. 17(2015) 023037 doi:10.1088/1367-2630/17/2/023037
+PAPER
+A magic state ’sﬁdelity can be superior to the operations that
+created it
+Ying Li
+Department of Materials, University of Oxford, Parks Road, Oxford OX1 3PH, UK
+E-mail: ying.li@materials.ox.ac.uk
+Keywords: fault tolerant quantum computing, surface code, magic state
+Abstract
+The leading approach to fault tolerant quantum computing requires a continual supply of magic states .
+When a new magic state is ﬁrst encoded, its initial ﬁdelity will be too poor for use in the computation.
+This necessitates a resource-intensive distillation process that occupies the majority of the computer ’s
+hardware; creating magic states with a high initial ﬁdelity minimizes this cost and is therefore crucial
+for practical quantum computing. Here we present the surprising and encouraging result that raw
+magic states can have a ﬁdelity signi ﬁcantly better than that of the two-qubit gate operations used to
+construct them. Our protocol exploits post-selection without signi ﬁcantly slowing the rate of genera-
+tion and tolerates ﬁnite error rates in initializations, measurements and single-qubit gates. This
+approach may dramatically reduce the size of the hardware needed for a given quantum comput-
+ing task.
+Introduction
+Fault tolerant quantum computing involves encoding one or more logical qubit(s) into a plurality of physical
+qubits and performing measurements on those physical qubits to detect and control error rates. A profound
+drawback of all such encodings is it is impossible to unitarily implement a universal set of operations on the
+logical qubits (i.e. gates) without risking the ampli ﬁcation of existing errors [ 1,2]. However we must of course
+achieve a universal set of operations in order to perform general quantum computing.
+This problem can be circumvented a number of ways to perform quantum computation fault-tolerantly.
+Universality can be achieved by allowing a limited ampli ﬁcation of noise [ 3] or introducing additional
+redundancy into the code [ 4–6]. These approaches make considerable sacri ﬁces and are not expected to tolerate
+as much noise as high-threshold codes, for instance the surface code [ 7–11]. Alternatively one can exploit the
+fact that, while the high-threshold codes do not support a complete set of fault-tolerant operations directly on
+our logical qubits, we can perform a more limited set of operations.
+F o re x a m p l e ,i nt h es u r f a c ec o d ew ec a np e r f o r maC N OT gate between two encoded logical qubits simply
+by performing CNOTs between each physical qubit in one logical qubit and the corresponding physical qubit
+in another logical qubit. Such a procedure is called transversal. We can also perform certain other gatestransversally, but crucially there are operations which we cannot achieve in this way, for example the
+π8
+gate. While these allowed operations do give us the ability to perform limited computations, unfortunately
+they do not take us beyond the algorithms that can ef ﬁciently performed on a classical computer [ 12].
+T h e r e f o r ew en e e ds o m em e a n so fu p g r a d i n gt h el i m i t ed set of computations to a universal set, while
+retaining fault tolerance.
+The solution for achieving universality with the surface code is the use of magic states. Suppose that we have a
+logical qubit Lencoded in a surface code composed of hundreds of physical qubits. We wish to perform a π8
+gate on Lin a way that is fault tolerant. Now suppose that we are given a second ancillary logical qubit A, this time
+in the magic state ∣〉+ ∣ 〉π0e1i4. If we now perform a CNOT controlled by Atargeted on L, and then measure
+outLin the computational basis (which we can do transversally), then the input state on Lwill be transferred to
+OPEN ACCESS
+RECEIVED
+19 November 2014
+REVISED
+16 January 2015
+ACCEPTED FOR PUBLICATION
+20 January 2015
+PUBLISHED
+13 February 2015
+Content from this work
+may be used under the
+terms of the Creative
+Commons Attribution 3.0
+licence .
+Any further distribution of
+this work must maintain
+attribution to the author
+(s) and the title of the
+work, journal citation and
+DOI.
+© 2015 IOP Publishing Ltd and Deutsche Physikalische Gesellschaft
+
+--- Page 3 ---
+Awith the π8gate applied1. Given a free supply of magic states, we could consume them as-needed and thus
+upgrade our machine to perform full universal computing.
+The question then becomes, how can we create a supply of magic states for our computer given that they are
+precisely the states which we cannot reach by fault tolerant operations on simple states (like logical zero). An
+answer is to go ahead and create ‘raw’magic states as well as we can, recognizing that they will contain errors at
+an unacceptable level, and then distil those states until they are acceptable [ 13]. Distillation involves taking a
+large number of raw magic states and deriving a smaller number of improved states, and then repeating this as
+necessary until the target ﬁdelity is reached. Crucially, this process can be performed using only the limited set of
+allowed fault tolerant operations. However the process is costly in resources and the cost depends on the ﬁdelity
+of the initial magic states. Consequently the distillation process may occupy the majority of the machine ’s
+hardware (in [ 14] it is estimated that implementing Shor ’s algorithm would require a machine with over 90% of
+qubits dedicated to magic state distillation). To minimize the hardware cost, one could think of either designingmore ef ﬁcient distillation algorithms [ 15–22] or simply improving the initial ﬁdelity of encoded magic states.
+In this paper, we describe a highly ef ﬁcient protocol for creating ‘raw’magic states in the surface code. As
+with previous authors, we take a single physical qubit in the desired magic state, and then perform a procedurethat yields the same state in an encoded form. There are many such protocols for encoding a state into various
+topological codes. The basic idea is to grow the magic state from the physical-qubit level to the full-size-encoding
+level by increasing the code distance [ 8,11,23,24]. Similar ideas can be used to encode entanglement into
+quantum networks [ 25–27] or unknown states into various topological codes [ 28].
+The aim of our new protocol is to minimize the noise in the ‘raw’encoded magic state before any distillation
+is performed. Such noise is potentially induced by any imperfect operation in the encoding circuit. We begin byconsidering the case that the error rate for single-qubit operations is far lower than the two-qubit errors. We note
+that this is indeed the case in many real implementations; even in the system with the highest ﬁdelity ever
+reported for a two-qubit gate, i.e.
+99.9%between two trapped ions [ 29], the ﬁdelity of single ion operations has
+been reported [ 30] at far higher levels, reaching 99.9999 %. In our new protocol, under this practical condition
+weﬁnd that the in ﬁdelity in the encoded magic state is less than half the in ﬁdelity of even a single CNOT gate .
+This is despite the fact that a large number of such gates are involved in the creation of the magic state. More
+speciﬁcally: when single-qubit operations are perfect and two-qubit gate noise is depolarizing, the rate of logical
+errors on the encoded magic state ∼pp (0.4)L 2, where p2is the error rate of CNOT gates, i.e. two-qubit gates.
+This observation is veri ﬁed by numerical simulations. Presently we will also consider the effect of single-qubit
+noise, and we ﬁnd that the logical error rate is still below the two-qubit error rate after switching on weak single-
+qubit noise. We use post-selection to suppress logical errors, but importantly the cost of doing so is modest: thesuccess rate
+∼60%when =p 0.1%2and single-qubit operations are perfect (and it becomes more deterministic
+as error rates fall).
+Protocol
+The protocol has two phases. In the ﬁrst phase, the magic state initialized on a single physical qubit is encoded
+into the surface code with distance d1. In this stage, post selection is used to reduce the logical error rate. In the
+second phase, the code distance is enlarged from d1tod2, the target code distance, to complete the encoding.
+From then on, the logical qubit is protected by correcting errors with normal syndrome detection and pairingalgorithms of surface code [ 19]. The detailed protocol reads:
+The whole lattice of the distance- d
+2surface code is divided into ﬁve sets ( ﬁgure 1): the top-left corner itself,
+two triangular areas (I and II), and two areas (III and IV) with trapezoidal shapes. The top-left corner, area-I,and area-II form the lattice of the distance- d
+1surface code.
+First phase:
+(1) A magic state is initialized on the data qubit at the top-left corner of the lattice (magic-state qubit); data
+qubits in area-I (area-II) are initialized in the state ∣+〉(∣〉0); data qubits in area-III and area-IV are not
+included in the ﬁrst phase.
+(2) Stabilizer measurements are performed on the lattice of the distance- d1surface code for twofull rounds,
+each involving both XandZstabilizer measurements. Circuits of stabilizer measurements in the ﬁrst phase
+1In fact one of two different gates on the input state will have occurred, depending on the outcome of the measurement —but these gates are
+related by a rotation that can be performed fault-tolerantly. The rotation may include a S gate, which can be performed fault-tolerantly with asimilar magic-state strategy.
+2New J. Phys. 17(2015) 023037 YL i
+
+--- Page 4 ---
+are shown in ﬁgure 2, where the order of CNOT gates is designed to minimize logical errors (selecting the
+correct order proves to be vital to achieving a high ﬁdelity result).
+(3) Error syndromes (as we de ﬁne later) are detected from outcomes of stabilizer measurements. In the event
+that an error syndrome is found, the magic state is discarded, and all data qubits are reinitialized accordingto Step-1.
+Second phase:
+(4) If no error syndrome is detected in the ﬁrst phase, data qubits in area-III (area-IV) are initialized in the state
+∣+〉∣〉(0).
+(5) Stabilizer measurements are performed on the entire lattice of the distance- d2surface code with any valid
+circuits (i.e. CNOT gates can be arranged in any convenient order that leads to valid stabilizer
+measurements) for one full round to complete the encoding. Regardless of whether error syndromes are
+found, the encoded magic state proceeds for further error correction, employing pairing algorithms andstate distillation etc.
+Except the magic-state qubit, all other qubits on the left (top) side of the lattice ( ﬁgure 1) are initialized in the
+state
+∣+〉∣〉(0). Hence, the logical qubit is an eigenstate of α βγ++XY ZLLL with the eigenvalue +1 if the magic-
+state qubit is initialized as an eigenstate of α βγ++XYZ with the eigenvalue +1. Here,
+∏∏== =∈∈X XZ Z Y i X Z,, a n diiiid d Lleft sideLtop sideL 1 1are Pauli operators of the logical qubit, which
+commute with stabilizer measurements and are conserved quantities. Therefore, the logical qubit is now in the
+magic state which was previously represented by the lone physical qubit in the top left.Figure 1. Schematic of the protocol for encoding a magic state into the surface code with high ﬁdelity. Circles represent data qubits;
+red squares (or triangles) with solid perimeter represent Xstabilizers; and green squares (or triangles) with dashed perimeter represent
+Zstabilizers. See the main text for details.
+Figure 2. Circuits of stabilizer measurements in the ﬁrst phase. XandZstabilizers are measured with circuits in (a) and (b),
+respectively. The ancillary qubit is always initialized in the state ∣〉0and measured in the computational basis. Optimal sequence for the
+CNOT gates is shown in (c). Each full round of stabilizer measurements is completed in a total of nine steps.
+3New J. Phys. 17(2015) 023037 YL i
+
+--- Page 5 ---
+An error syndrome is an event indicating errors. Without error, outcomes of stabilizer measurements
+coincide with the initialization pattern: in the ﬁrst phase, values of Xstabilizers in area-I and Zstabilizers in area-
+II (stabilizers with slash lines in ﬁgure 1) are all +1; similarly, in the second phase, values of Xstabilizers in area-I
+and area-III and Zstabilizers in area-II and area-IV are also +1. Without error, the outcome of a stabilizer in later
+measurements is always the same as it is in the ﬁrst-round measurement. Therefore, in the ﬁrst phase two types
+of events are recognized as error syndromes: mismatches (i) between the initialization pattern and the ﬁrst
+round of stabilizer measurements and (ii) between the ﬁrst and second rounds of stabilizer measurements. Error
+syndromes in the second phase and following stabilizer measurements are similar.
+Optimal circuits of stabilizer measurements ( ﬁgure 2) in the ﬁrst phase are obtained by minimizing logical
+errors on the encoded magic state. Generally, a stabilizer measurement includes an ancillary qubit and four (or
+three) CNOT gates between the ancillary qubit and relevant data qubits. Classifying CNOT gates by stabilizers
+and their orientations, there are eight sets of CNOT gates in each full round of stabilizer measurements. Aftersearching in all valid stabilizer-measurement circuits restricted to those implementing each set of CNOT gates inparallel, we ﬁnd that the logical error rate ranges from
+∼p252to∼p432depending on ordering. The circuit
+shown in ﬁgure 2is one of the circuits providing the minimized logical errors. Given this optimal circuit we then
+allow for ﬁnite error rates in other operations besides the two-qubit CNOT gates; the consequences are
+described in the following section.
+Results
+Operations on physical qubits which are included in our protocol are: initialization in the state ∣〉0; measurement
+in the computational basis ∣〉(0and∣〉1); single-qubit gates; and CNOT gate. We assume a qubit may be
+initialized in the incorrect state ∣〉1with the probability pI; the measurement may report an incorrect outcome
+with the probability pM; and each single-qubit gate and CNOT gate (i.e. two-qubit gate) may induce an error
+with the probability p1andp2respectively. A noisy gate is modelled as a perfect gate followed by single-qubit
+depolarizing noise for single-qubit gates and two-qubit depolarizing noise for the CNOT gate [ 9].
+The logical qubit is sensitive to noise when the code distance is small and more stable when the code distance
+is larger. Therefore, most of logical errors occur in the ﬁrst phase. Utilizing post selection and optimized
+stabilizer-measurement circuits, errors in the ﬁrst phase are well suppressed. With the depolarizing error model,
+the rate of logical errors on the encoded magic state is:
+Figure 3. Error rate of the logical qubit encoded in the surface code with distance d2. We have taken =d 7 1 as an example. The logical
+error rate pLconverges to the analytical limit p252when the two-qubit error rate ≲p 0.1%2. This result is obtained by assuming
+single-qubit operations are perfect, i.e. = ppp,, 0M I1. Logical errors are detected after performing d2rounds of full-size stabilizer
+measurements (including the one in the second phase) and correcting errors with Edmonds ’s minimum weight matching algorithm
+[31], so that short error chains are suf ﬁciently considered in our simulations. In the second phase, we have used stabilizer-
+measurement circuits proposed in [ 11].
+4New J. Phys. 17(2015) 023037 YL i
+
+--- Page 6 ---
+ =+ ++ () pp p p p2
+522
+3.( 1 )L2 I 12
+Figure 4. Logical error rate with (a) single-qubit errors = ppp p,, 1 0IM 1 2and (b) single-qubit errors = ppp p,,IM 1 2. With these 10%
+(100%) single-qubit errors, the logical error rate converges to p232(p46 152) consistent with equation ( 1).
+Table 1. Estimated hardware requirements,
+i.e. volumes in the qubit array —time cost
+space, of implementing the 15-to-1 distilla-tion protocol. We assume
+=p 0.1%2and the
+probability of logical errors per round of sta-
+bilizer measurements scales with the codedistance das
+∼+dp(100 )d
+2(1 ) 2.ϵinandϵout
+are respectively the error rate before and after
+distillations.
+ϵout ϵ=p41 5 in 2 ϵ= p76 15 in 2
+10−6×1.1 107×6.7 107
+10−9×3.0 107×1.0 108
+10−12×1.7 108×1.7 108
+10−15×2.4 108×1.1 109
+10−18×3.5 108×1.2 109
+10−21×4.8 108×1.3 109
+5New J. Phys. 17(2015) 023037 YL i
+
+--- Page 7 ---
+Initialization errors on the magic-state qubit and the next data qubit on the same horizontal line (second data
+qubit) can cause logical errors occurring with the probability p2I. The single-qubit gate for rotating the magic-
+state qubit to the magic state may induce a logical error with the probability p231. Here the factor 23is because
+of that the depolarizing noise is isotropic, and the magic state is ﬂipped to the orthogonal state with the
+probability p231by the depolarizing noise. CNOT gates in the ﬁrst round of stabilizer measurements may also
+induce logical errors. There are six kinds of CNOT-gate errors that can result in logical errors, and each of them
+occurs with the probability p152. These errors are Z[]c,XX[ ] ctandYX[]ctinduced by the CNOT gate on the
+magic-state qubit for measuring the Zstabilizer, ZZ[]ctinduced by the CNOT gate on the magic-state qubit for
+measuring the Xstabilizer, and XX[ ] ctandYX[]ctinduced by the CNOT gate on the second data qubit for
+measuring the Zstabilizer. Here, candtrespectively denote the control and target qubits in corresponding
+CNOT gates. All other errors do not cause logical errors solely hence contribute to the logical error rate in secondorder. Neglecting high-order contributions, the model of errors on the encoded magic state reads
+=− + + + +
+++ + + pp p p p F
+pp X p Y p Z12
+522
+3[]2
+3
+1
+51
+152
+15,( 2 )L 2I 1 I 1 L
+I2 L 2 L 2 L⎜⎟ ⎜ ⎟
+⎜⎟⎛
+⎝⎞
+⎠⎛
+⎝⎞
+⎠⎡⎣⎤⎦
+⎛
+⎝⎞
+⎠⎡⎣⎤⎦⎡⎣⎤⎦⎡⎣⎤⎦
+where F[]Ldenotes that the magic state is ﬂipped to the orthogonal state. For the magic state ∣〉+ ∣ 〉π0e1i4, the
+encoded state is in the orthogonal state with a probability even lower than pL, which is
+ +++ pp p p4 15 3 2 2 3 ( )2I 12, because X[]LandY[]Lonly contribute at half power.
+This analytical result is veri ﬁed by numerical simulations, example curves are shown in ﬁgure ( 4) where we
+take =d 7 1 as an example. In general, a larger d1implies a higher ﬁdelity but also a smaller success probability. By
+choosing =d 7 1 ,w eﬁnd that logical errors are well suppressed and at the same time the success probability is
+still high. When single-qubit operations are perfect ( = pp p,, 0IM1), the logical error rate converges to p252as
+shown in ﬁgure 3. After switching on all single-qubit noise to 10%, i.e. = pp p p,, 1 0IM1 2, the logical error rate
+increases to p232as shown in ﬁgure 4(a). Thus the logical error rate remains lower than the physical two-qubit
+error rate even when other error sources are present at a ﬁnite level (and indeed in many physical
+implementations there is more than an order of magnitude separating the two-qubit and single-qubit error
+rates). Ultimately however if all forms of single-qubit operation suffer error rates equal to the two-qubit error
+rate, then logical error rate does exceed this common physical error rate and reaches p461 52(seeﬁgure 4(b)).
+With =d 7 1 and two-qubit error rate =p 0.1%2, theﬁrst phase succeeds with a probability in the range
+∼ 0.38 0.59 depending on the rate of single-qubit errors. However, by adaptive use of hardware resources the
+protocol ’s effective success rate is much higher: for practical quantum computation, the target surface code
+usually has a large distance ∼20. If we choose =d 21 2 , the entire lattice can be divided into 9 copies of d1lattice,
+hence the ﬁrst phase can be attempted in parallel, and the rate of obtaining at least one success is
+∼−≃1 (0.5) 0.9989. Although the successful copy may not be the one located at the top-left corner, we still can
+enlarge the code distance from d1tod2by adapting the initialization pattern in the second phase. Because
+equation ( 1) is only determined by the ﬁrst phase, the overall ﬁdelity will not be affected signi ﬁcantly.
+Finally as an aside we note that the protocol described here can also be used to encode magic states to a
+punctured surface code [ 11].
+Conclusions
+We have proposed a new protocol for encoding magic states into the surface code with high- ﬁdelity.
+Remarkably, we ﬁnd that the optimal gate sequence results in noise on the encoded magic state which is lower
+than half of the noise induced by a single physical CNOT gate . Compared with the previous protocol [ 24], in which
+the probability of errors on the encoded magic state is ∼p76 152, logical errors due to two-qubit noise are
+reduced by a factor about 20 for the magic state ∣〉+ ∣ 〉π0e1i4. This can profoundly reduce the size of the
+hardware needed for quantum computing: for example with the 15-to-1 distillation protocol [ 13] the logical
+error rate can be reduced from pinfor input magic states to =pp 35out in3(for small pin) for the output magic state
+for each round of distillation, i.e. the advantage of our protocol is then a factor about 203nafter nrounds of
+distillations. We can expect that this will reduce the required number of rounds by one (as, for example, if
+=p 0.1%2and the target error rate of the distillation is anywhere between 10−15and 10−25). The number of raw
+magic states required can then be reduced by a factor of 15. An estimation of the hardware requirements for
+magic state distillations is shown in table 1[18–20]. Given the anticipated expense and complexity of quantum
+computing devices, we believe this is an important and very encouraging result.
+6New J. Phys. 17(2015) 023037 YL i
+
+--- Page 8 ---
+Acknowledgments
+I wish to thank Simon Benjamin, Earl Campbell, Austin Fowler, Clare Horsman, and Naomi Nickerson for
+helpful discussions. I am also grateful to Simon Benjamin and Earl Campbell for their help in preparing the
+introductory parts of this manuscript. This work was supported by the EPSRC platform grant ‘Molecular
+Quantum Devices ’(EP/J015067/1).
+References
+[1] Eastin B and Knill E 2009 Phys. Rev. Lett. 102110502
+[2] Zeng B, Cross A and Chuang I L 2011 IEEE Trans. Inf. Theory 576272
+[3] Jochym-O ’Connor T and La ﬂamme R 2014 Phys. Rev. Lett. 112010505
+[4] Paetznick A and Reichardt B W 2013 Phys. Rev. Lett. 111090505
+[5] Anderson J T, Duclos-Cianci G and Poulin D 2014 Phys. Rev. Lett. 113080501
+[6] Bombin H 2013 arXiv: 1311.0879
+[7] Kitaev A 2003 Ann. Phys. 3032
+[8] Dennis E, Kitaev A, Landahl A and Preskill J 2002 J. Math. Phys. 434452
+[9] Raussendorf R and Harrington J 2007 Phys. Rev. Lett. 98190504
+[10] Raussendorf R, Harrington J and Goyal K 2007 New J. Phys. 9199
+[11] Fowler A G, Stephens A M and Groszkowski P 2009 Phys. Rev. A80052312
+[12] Gottesman D 1998 arXiv: quant-ph/9807006
+[13] Bravyi S and Kitaev A 2005 Phys. Rev. A71022316
+[14] Fowler A G, Mariantoni M, Martinis J M and Cleland A M 2012 Phys. Rev. A86032324
+[15] Meier A M, Eastin B and Knill E 2012 arXiv: 1204.4221
+[16] Bravyi S and Haah J 2012 Phys. Rev. A86052329
+[17] Jones C 2013 Phys. Rev. A87042305
+[18] Fowler A G and Devitt S J 2012 arXiv: 1209.0510
+[19] Fowler A G, Devitt S J and Jones C 2013 Sci. Rep. 31939
+[20] Mishra P and Fowler A G 2014 arXiv: 1406.4948
+[21] Campbell E T, Anwar H and Browne D E 2012 Phys. Rev. X2041021
+[22] Campbell E T 2014 Phys. Rev. Lett. 113230501
+[23] Horsman C, Fowler A G, Devitt S and Van Meter R 2012 New J. Phys. 14123011
+[24] Raussendorf R, Harrington J and Goyal K 2006 Ann. Phys. 3212242
+[25] Perseguers S 2010 Phys. Rev. A81012310
+[26] Mazurek P, Grudka A, Horodecki M, Horodecki P, Łodyga J, Pankowski Łand Przysie żna A 2014 Phys. Rev. A90062311
+[27] Li Y, Cavalcanti D and Kwek L C 2012 Phys. Rev. A85062330
+[28] Łodyga J, Mazurek P, Grudka A and Horodecki M 2014 arXiv: 1404.2495
+[29] Ballance C J, Harty T P, Linke N M and Lucas D M 2014 arXiv: 1406.5473
+[30] Harty T P, Allcock D T C, Ballance C J, Guidoni L, Janacek H A, Linke N M, Stacey D N and Lucas D M 2014 arXiv: 1403.1524
+[31] Kolmogorov V 2009 Math. Program. Comput. 143
+7New J. Phys. 17(2015) 023037 YL i

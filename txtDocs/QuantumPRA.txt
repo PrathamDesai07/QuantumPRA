@@ -1,0 +1,552 @@
+--- Page 1 ---
+1
+
+--- Page 2 ---
+Hardware-Aware Magic-State Injection on the Rotated Surface
+Code
+High-Level Idea, Theoretical Model, and Numerical Simulation
+Plan
+Draft research outline
+February 16, 2026
+Abstract
+ThisdocumentoutlinesaPhysicalReviewA–levelresearchdirectioncenteredonhardware-
+aware magic-state injection for the rotated surface code. The project extends Li’s post-
+selected encoding protocol on the regular surface code and Lao–Criger’s magic-state injec-
+tion schemes on the rotated surface code to realistic, biased, and connectivity-constrained
+noise models. We describe (i) the high-level research idea and its relation to key references,
+(ii) a concrete theoretical model design including circuit-level noise and protocol parame-
+terization, and (iii) a detailed plan for stabilizer-based numerical simulations on CPU and
+GPU backends.
+Contents
+1 High-Level Research Idea and Key References 3
+1.1 Motivation: Reducing Magic-State Overhead in Surface-Code Architectures . . . 3
+1.2 Li (2015): Post-Selected Encoding on the Regular Surface Code . . . . . . . . . . 3
+1.3 Lao–Criger (2022): Magic-State Injection on the Rotated Surface Code . . . . . . 4
+1.4 Berthusenet al.(2025): 2D Local qLDPC Architectures and Stacked Stabilizers 5
+1.5 Biased Surface Codes and Magic-State Preparation . . . . . . . . . . . . . . . . . 6
+2 Theoretical Model Design 6
+2.1 Architecture-Specific Circuit-Level Noise Model . . . . . . . . . . . . . . . . . . . 6
+2.1.1 Operation types . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.1.2 Error channels . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.1.3 Connectivity and effective two-qubit error rates . . . . . . . . . . . . . . . 7
+2.2 Parametric Family of Injection Protocols . . . . . . . . . . . . . . . . . . . . . . . 7
+2.2.1 Rotated surface-code patch and logical operators . . . . . . . . . . . . . . 8
+2.2.2 Stabilizer-measurement circuits and scheduling . . . . . . . . . . . . . . . 8
+2.2.3 Post-selection rounds and stabilizer subsets . . . . . . . . . . . . . . . . . 8
+2.2.4 Acceptance condition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.3 Analytic First-Order Error Counting . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.3.1 Heisenberg-picture tracking of stabilizers and logical operators . . . . . . 9
+2.3.2 Fault locations and undetected logical errors . . . . . . . . . . . . . . . . 9
+2.3.3 Symbolic expressions in terms of noise parameters . . . . . . . . . . . . . 10
+2.3.4 Logical noise bias . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.4 From Injection to Magic-State Distillation Cost . . . . . . . . . . . . . . . . . . . 10
+2
+
+--- Page 3 ---
+3 Numerical Simulations 11
+3.1 Goals of the Simulation Study . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.2 Simulation Framework and Backends . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.2.1 Stabilizer-based simulation . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.2.2 CPU and GPU execution . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.3 Simulation Algorithm Outline . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+3.3.1 Circuit construction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+3.3.2 Single-sample simulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+3.3.3 Estimators . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+3.4 Code Structure for Simulations . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+3.4.1 Data structures . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+3.4.2 Pseudo-code sketch . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+3.4.3 GPU considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+3.5 Appendix: Example Analytic Coefficients . . . . . . . . . . . . . . . . . . . . . . 14
+1 High-Level Research Idea and Key References
+1.1 Motivation: Reducing Magic-State Overhead in Surface-Code Architec-
+tures
+Fault-tolerant surface-code architectures require a continual supply of high-fidelity magic states
+to implement non-Clifford gates such as theTgate via gate teleportation. The conventional
+approach prepares “raw” encoded magic states with relatively poor fidelity and then applies one
+or more rounds of magic-state distillation, which dominates the qubit-time overhead in many
+architectures.
+The central idea of this project is tooptimize magic-state injection itselfon the rotated
+surface code, under realistic hardware constraints, so that the logical error ratep Lof the raw
+injected states is reduced and their logical noise may be biased in a favorable way. This directly
+lowers the cost of subsequent magic-state distillation, potentially saving orders of magnitude in
+qubit-time volume.
+Concretely, we will:
+•Define an architecture-specific circuit-level noise model where single-qubit gates and mea-
+surements are cheaper than CNOTs, and include possible noise bias and limited-range con-
+nectivity.
+•Treat the injection patch geometry, stabilizer-measurement order, and number of post-
+selection rounds as optimization variables.
+•Analytically count first-order error patterns that survive post-selection to obtain closed-form
+expressions forp Las functions of hardware parameters.
+•Validate and refine these expressions via stabilizer-based numerical simulations at the circuit
+level, and propagate the resultingp Land acceptance probabilities into standard magic-state
+distillation cost models.
+The result will be a family of hardware-optimized injection schemes on the rotated surface
+code (and potentially XZZX-rotated variants) with quantitatively demonstrated advantages
+over existing protocols.
+1.2 Li (2015): Post-Selected Encoding on the Regular Surface Code
+Li’sprotocol[1]providesthekeyconceptualbuildingblocks: atwo-phase, post-selectedencoding
+procedure on the regular surface code, together with a circuit-level noise analysis.
+3
+
+--- Page 4 ---
+Protocol structure.A single-qubit magic state|m⟩is initialized on a physical qubit in the
+top-left corner of a distance-d 1surface-code patch. The remaining qubits in the small patch
+are initialized in|0⟩or|+⟩such that the target logical state after encoding is|m⟩L. Two
+rounds of stabilizer measurements are performed, using carefully ordered CNOT circuits. Runs
+are discarded (post-selected out) whenever the measured stabilizers are inconsistent with the
+initialization pattern or with the previous round’s measurement outcomes.
+If no syndrome is detected in this first phase, the code distance is then grown fromd 1to
+a largerd 2by initializing additional data qubits and performing one or more rounds of full-
+lattice stabilizer measurements. After this second phase, the logical magic state is protected by
+standard surface-code error correction.
+Circuit-level noise model.Li assumes independent depolarizing noise after each operation:
+•Qubit initialization in|0⟩is flipped with probabilityp I.
+•Measurements in the computational basis are flipped with probabilityp M.
+•Single-qubit gates suffer depolarizing noise with probabilityp 1: a random non-identity Pauli
+acts with probabilityp 1/3.
+•Two-qubit CNOT gates suffer two-qubit depolarizing noise with probabilityp 2: a random
+non-identity two-qubit Pauli acts with probabilityp 2/15.
+Leading-order logical error rate.Under this model, Li analytically counts single-fault
+events that both (i) are not detected by post-selection and (ii) result in a logical error on the
+encoded magic state. Neglecting higher-order contributions, the resulting logical error rate has
+the form
+pL≈2
+5p2
+2+ 2p I+2
+3p1+...,(1)
+where the dots denote subleading terms inp 2and contributions from weight-2 or higher faults.
+In the idealized limit where single-qubit gates, initialization, and measurement are perfect
+(p1=pI=pM= 0), Li finds that
+pL→2
+5p2
+2 (2)
+asp 2→0, a result confirmed by stabilizer-based simulations.
+A notable conclusion is that with realistic parameters wherep 1≪p 2, the infidelity of the
+encoded magic state can be significantlylowerthanp 2, even though the encoding circuit uses
+many CNOT gates.
+Impact on distillation overhead.Li couples the analytic expression forp Lto standard
+15-to-1 Bravyi–Kitaev magic-state distillation, estimating the number of raw magic states and
+qubit-time volume required to reach a target logical error rate per output state. Improved
+raw magic-state fidelity translates directly into fewer distillation rounds and reduced hardware
+footprint.
+1.3 Lao–Criger (2022): Magic-State Injection on the Rotated Surface Code
+Lao and Criger[2] adapt Li’s post-selection protocol to the rotated surface code and introduce
+new injection schemes that exploit the more qubit-efficient rotated geometry.
+Rotated surface-code geometry.A distance-drotated planar surface code encodes one
+logical qubit using only2d2data qubits (versus2d2−2d+ 1for the regular layout), while
+retaining local stabilizer measurements on a 2D grid. The logical operators are strings of Pauli
+operators along orthogonal boundaries of the code.
+4
+
+--- Page 5 ---
+CR and MR injection schemes.Two main schemes are introduced:
+•CR (corner-rotated): the magic state is initialized on a data qubit located at a corner of the
+rotated lattice. The rest of the patch is initialized in|0⟩or|+⟩such that, after two rounds
+of stabilizer measurements and post-selection, the logical state is an eigenstate of a logical
+operator supported along the top and left boundaries.
+•MR (middle-rotated): the magic state is initialized on a data qubit in the middle of the
+rotated lattice. The initialization pattern is chosen so that the logical operator is supported
+along the central horizontal and vertical lines passing through the magic qubit. This reduces
+the number of “sensitive” data qubits whose single-qubit faults can induce undetected logical
+errors.
+Both schemes apply Li’s two-round post-selection rule: reject runs whenever stabilized pla-
+quettes that should be satisfied based on initialization give the wrong eigenvalue, or when
+outcomes between the first and second measurement rounds disagree.
+Circuit-level noise and analyticp L.Using a similar circuit-level depolarizing model, Lao
+and Criger enumerate single-operation errors that lead to logical faults without triggering post-
+selection. For example, in the CR scheme they find a leading-order logical error rate of the
+form
+pCR
+L≈3
+5p2
+2+ 2p I+2
+3p1+...,(3)
+while the MR scheme yields
+pMR
+L≈3
+5p2
+2+pI+2
+3p1+...,(4)
+with the precise coefficients depending on which CNOTs and data qubits can host undetected
+faults.
+They also analyze biased noise models wherep 1≪p 2and/orp Idiffers significantly from
+p2. Under realistic biased regimes motivated by superconducting devices, the MR scheme can
+outperform both the CR scheme and Li’s original protocol on the regular surface code.
+Numericalvalidation.Stabilizer-basedMonteCarlosimulationsunderthecircuit-levelnoise
+model confirm that the numerically estimatedp Lconverges to the analytic leading-order ex-
+pressions at smallp 2. Lao and Criger also study howp Land rejection probabilities depend
+on the code distance, and observe that (in their setting) distance primarily affects acceptance
+probability rather than the leading-order contribution top L.
+1.4 Berthusenet al.(2025): 2D Local qLDPC Architectures and Stacked
+Stabilizers
+Berthusenet al.[3] focus on implementing quantum LDPC codes under strict 2D local connec-
+tivity using a bilayer architecture and teleportation-based routing. While their primary subject
+is not the surface code, their work provides important architectural ideas that we can adapt to
+model connectivity constraints in our injection protocols.
+Key points include:
+•A bilayer architecture with data and check qubits in one layer and routing ancillas in another,
+enabling long-range CNOTs via teleportation with a distance-dependent error cost.
+•The “stacked model” andmasking: measuring geometrically local stabilizer generators fre-
+quently, while measuring large-radius generators less often to reduce time overhead.
+•Circuit-level depolarizing noise for single- and two-qubit gates, measurements, and idling,
+with detailed circuit-level simulations on qLDPC codes.
+5
+
+--- Page 6 ---
+For our purposes, their framework suggests:
+•Modeling architectures where some stabilizer measurements in the injection patch are signif-
+icantly more expensive (in depth and error) than others.
+•Exploring post-selection protocols in which only a subset of “cheap” stabilizers are mea-
+sured in early rounds, with “expensive” stabilizers measured less frequently or only before
+acceptance.
+1.5 Biased Surface Codes and Magic-State Preparation
+Recent work on biased-noise surface codes and magic-state preparation (e.g., XZZX surface
+codes and biased-noise magic-state gadgets) demonstrates that encoding and error-correction
+schemes tailored to a dominant dephasing channel can achieve substantially improved thresh-
+olds and logical error rates. This motivates explicitly incorporating bias into our noise and
+optimization models.
+In particular, we can draw on:
+•XZZX surface-code constructions with high thresholds under dephasing-dominated noise.
+•Biased-noise magic-state preparation schemes that achieve quadratic improvements in magic-
+state infidelity by exploiting noise bias.
+•Analyses of logical noise bias in magic-state injection, which quantify how the injection
+gadget transforms physical bias into logical bias.
+2 Theoretical Model Design
+2.1 Architecture-Specific Circuit-Level Noise Model
+We now specify a flexible circuit-level noise model suitable for several hardware regimes (e.g.,
+superconducting qubits, trapped ions, neutral atoms). The model distinguishes error rates by
+operation type and allows for Pauli bias.
+2.1.1 Operation types
+We consider the following set of operations on physical qubits:
+•Initialization in|0⟩or|+⟩.
+•Single-qubit Clifford and non-Clifford gates (Hadamard, phase,T, etc.).
+•Two-qubit CNOT (or CZ) gates, restricted to nearest neighbors in a 2D lattice, or imple-
+mented via teleportation in a bilayer architecture.
+•Measurement in the computational basis (and potentially in theXbasis).
+•Idle (no gate) steps, during which decoherence acts.
+2.1.2 Error channels
+Foreachoperationtype, weassignanindependentnoisechannelactingaftertheidealoperation:
+•Initialization:a qubit intended to be initialized in|0⟩is instead inX|0⟩with probability
+pI, modeled as a classical bit-flip. Similarly for initialization in|+⟩, with aZ-flip probability.
+6
+
+--- Page 7 ---
+•Measurement:an ideal projective measurement in the computational basis is followed by
+classical outcome flip with probabilityp M.
+•Single-qubit gates:after an ideal single-qubit unitaryU, a Pauli error acts according to
+E1(ρ) = (1−p 1)ρ+p 1/summationdisplay
+P∈{X,Y,Z}qPPρP,(5)
+whereq Pare non-negative and sum to 1. Depolarizing noise corresponds toq X=qY=qZ=
+1/3. Biased noise can be modeled by choosing, for example,q Z≫qX,qY.
+•Two-qubit CNOT gates:after an ideal CNOT, a two-qubit Pauli error acts as
+E2(ρ) = (1−p 2)ρ+p 2/summationdisplay
+P∈P 2\{II}rPPρP,(6)
+whereP 2is the two-qubit Pauli group and ther Pdefine a distribution. Two-qubit depolar-
+izing noise corresponds tor P= 1/15for all non-identityP. Biased noise may favor certain
+correlatedZerrors.
+•Idle steps:during an idle time step of duration∆t, a dephasing channel acts on each qubit:
+Eidle(ρ) = (1−p Z,idle)ρ+p Z,idleZρZ,(7)
+wherep Z,idle≈1−e−∆t/T 2. Amplitude damping or more general decoherence channels can
+be used if needed.
+2.1.3 Connectivity and effective two-qubit error rates
+For a planar architecture with only nearest-neighbor two-qubit gates, stabilizer measurement
+circuits are composed of local CNOTs according to a prescribed CNOT ordering. In a bilayer
+architecturewithteleportation-basedrouting,alogicallong-rangeCNOTbetweendistantqubits
+isimplementedbyasequenceofBell-pairpreparations, Bellmeasurements, andlocalCNOT/CZ
+gates.
+If a long-range CNOT between qubits separated by Manhattan distanceLis realized using
+teleportation, the effective two-qubit error rate can be modeled as
+peff
+2(L) = 1−(1−p 2)n(L),(8)
+wheren(L)is the number of two-qubit gates required in the teleportation circuit. In the
+presence of entanglement purification,peff
+2(L)becomes a more complicated function ofL,p 2,
+and the purification protocol.
+For the purposes of magic-state injection on the rotated surface code, we may initially
+restrict to a 2D nearest-neighbor layout (no long-range CNOTs), and later incorporate bilayer
+effects if needed.
+2.2 Parametric Family of Injection Protocols
+We now define a general family of injection protocolsPon the rotated surface code, of which
+Li’s and Lao–Criger’s schemes are special cases.
+7
+
+--- Page 8 ---
+2.2.1 Rotated surface-code patch and logical operators
+Consider a distance-d 1rotated planar surface code patch encoding a single logical qubit. LetD
+denote the set of data-qubit indices andSX,SZthe sets ofX- andZ-type stabilizer generators,
+respectively. Logical operators are strings ofXandZalong opposite boundaries of the patch.
+We parameterize the injection patch by:
+•The choice of magic-qubit locationj M∈D(corner, edge, or middle).
+•The initialization pattern for all other data qubits: for eachj∈D\{j M}, we choose|0⟩or
+|+⟩such that the joint state is an eigenstate of a desired logical operator when the magic
+qubit is initialized in|m⟩.
+2.2.2 Stabilizer-measurement circuits and scheduling
+For each stabilizer generatorS∈SX∪SZ, we choose a measurement circuit consisting of:
+•An ancilla qubit initialized in|0⟩(forZ-type) or|+⟩(forX-type) as appropriate.
+•A sequence of CNOT gates between the ancilla and the data qubits in the support ofS, with
+a specified order.
+•A final single-qubit measurement of the ancilla.
+LetC(S)denote the ordered list of CNOTs for stabilizerS. Aschedulefor a single round of
+stabilizer measurements is a partition of all CNOTs/uniontext
+SC(S)into time steps such that no qubit
+participates in more than one CNOT per time step.
+The schedule strongly influences the set of single-fault locations that can lead to undetected
+logical errors, as shown by Li and Lao–Criger. An important part of the project is to search over
+a restricted space of schedules (e.g., those with minimal depth) to minimize the leading-order
+coefficients inp L.
+2.2.3 Post-selection rounds and stabilizer subsets
+A protocolPis specified by:
+P= (d 1,jM,{C(S)} S,r,{S t}r
+t=1),(9)
+where:
+•d 1is the initial code distance.
+•jMis the magic-qubit location.
+•{C(S)} Sare the measurement circuits (including CNOT orderings) for each stabilizer.
+•ris the number of post-selection rounds.
+•S t⊆SX∪SZis the subset of stabilizers measured in roundt.
+Li and Lao–Criger correspond tor= 2andS 1=S 2=SX∪SZ, up to stabilizers that
+are already satisfied by the initialization pattern. More general protocols may, for example,
+measure only a subset of “cheap” stabilizers in the first round, and the full set in subsequent
+rounds.
+8
+
+--- Page 9 ---
+2.2.4 Acceptance condition
+Given the measured syndromes{s t(S)}, a run is accepted if and only if:
+1. For eachSthat is satisfied by the initialization pattern, the first-round measurement satisfies
+s1(S) = +1.
+2. For eachSmeasured in both roundstandt′, the outcomes agree:s t(S) =s t′(S).
+If any of these conditions fail, the run is discarded and all data qubits are reinitialized for
+another attempt.
+2.3 Analytic First-Order Error Counting
+Given a protocolPand noise model parametersθ= (p I,pM,p1,p2,...), we wish to obtain a
+leading-order expression for the logical error ratep L(P,θ)and, if possible, the logical noise bias.
+The analysis follows Li and Lao–Criger but is generalized to the larger protocol family and
+biased noise.
+2.3.1 Heisenberg-picture tracking of stabilizers and logical operators
+We describe the code in terms of its stabilizer groupSand logical Pauli operators X,Z. In
+the Heisenberg picture, we track how these operators transform under the unitary part of the
+injection and measurement circuits.
+Foreachtimestepinthecircuit(including initialization, magic-staterotation, CNOTlayers,
+and measurement), we update the stabilizers and logical operators according to the conjugation
+action of the gates. For example, for a CNOT with control qubitcand target qubitt, the Pauli
+operators transform as
+Xc∝⇕⊣√∫⊔≀→X cXt, Z c∝⇕⊣√∫⊔≀→Z c,(10)
+Xt∝⇕⊣√∫⊔≀→X t, Z t∝⇕⊣√∫⊔≀→Z cZt.(11)
+By propagating all stabilizers and logical operators through the first round of measurements,
+we can identify:
+•Which stabilizers have deterministic+1outcomes given the ideal circuit and initialization.
+•The final form of the logical operator that corresponds to the encoded magic state.
+2.3.2 Fault locations and undetected logical errors
+Afault locationis a specific operation (initialization, single-qubit gate, CNOT, measurement)
+at which a Pauli error may occur. To leading order in the noise parameters, we retain only
+events where a single fault occurs somewhere in the circuit.
+For each fault locationℓand each non-identity Pauli errorE ℓthat can occur there (with
+probability depending onp I,p1,p2,...), we determine:
+1. WhetherE ℓchanges any of the measured stabilizer outcomes in such a way that the run is
+rejected.
+2. WhetherE ℓchanges the eigenvalue of the final logical operator (e.g., Zfor aT-type magic
+state) on accepted runs.
+Formally, letAbe the set ofacceptedsingle-fault events:
+A={(ℓ,E ℓ) :the run is accepted and the logical state is flipped}.(12)
+9
+
+--- Page 10 ---
+The leading-order logical error probability is then
+pL(P,θ)≈/summationdisplay
+(ℓ,E ℓ)∈Ap(Eℓ),(13)
+wherep(E ℓ)is the probability of that particular error under the noise model.
+2.3.3 Symbolic expressions in terms of noise parameters
+Carrying out this enumeration yields symbolic expressions of the form
+pL(P,θ)≈α 2(P)p 2+α 1(P)p 1+αI(P)p I+αM(P)p M+...,(14)
+where the coefficientsα ·(P)are non-negative rational numbers that count the number of dan-
+gerous fault locations weighted by the probabilities of their associated Pauli components. In
+regimes where the first-order contributions cancel or are absent, the leading term may instead
+be quadratic, e.g.,
+pL(P,θ)≈c(P)p2
+2+O(p3
+2).(15)
+By computing these coefficients for different protocolsPand hardware parameter regimes
+θ, we can compare and optimize injection schemes analytically.
+2.3.4 Logical noise bias
+In settings with biased noise, it is often useful to characterize thelogicalnoise after injection in
+terms of its Pauli components. Let the effective logical channel after injection (conditioned on
+acceptance) be
+EL(ρ) = (1−p L)ρ+/summationdisplay
+P∈{X,Y ,Z}pPPρP.(16)
+We can define a logical bias parameter, for example
+ηL=pZ
+pX,(17)
+which quantifies whether the logical noise is predominantly phase-like or bit-flip-like. The same
+single-fault enumeration used forp Lcan be refined to keep track of which logical Pauli each
+undetected fault induces, thereby giving leading-order estimates forpX,pY,pZ.
+2.4 From Injection to Magic-State Distillation Cost
+To demonstrate the practical impact of improved injection, we will couple the obtainedp L(P,θ)
+to standard magic-state distillation protocols. For example, in the Bravyi–Kitaev 15-to-1 pro-
+tocol, the output error rate scales as
+pout≈35p3
+in,(18)
+for small input errorp in. Given a target magic-state errorp target, we can determine the number
+of distillation rounds required starting fromp L, and estimate the total number of raw magic
+states and qubit-time volume needed.
+This analysis enables quantitative comparison between different injection protocols and ar-
+chitectures, in terms of the ultimate cost per high-fidelityTgate.
+10
+
+--- Page 11 ---
+3 Numerical Simulations
+3.1 Goals of the Simulation Study
+The numerical simulations serve three main purposes:
+1.Validation of analytic leading-order expressions:check that Monte Carlo estimates
+ofpL(P,θ)converge to the analytic predictions as physical error rates tend to zero.
+2.Characterization beyond leading order:quantify the impact of weight-2 and higher
+faults, and explore regions where analytic approximations break down.
+3.Exploration of parameter space:study howp L, logical noise bias, and rejection prob-
+abilities depend on code distanced 1, number of post-selection roundsr, noise bias, and
+connectivity constraints.
+3.2 Simulation Framework and Backends
+3.2.1 Stabilizer-based simulation
+Because the injection circuits consist solely of Clifford operations (initializations, Clifford gates,
+CNOTs, and Pauli measurements), and the injected magic state itself is a single-qubit non-
+Clifford state, the overall circuit is amenable to efficient stabilizer-based simulation with Pauli
+frame tracking and sampling.
+Two main approaches are possible:
+•Directstabilizersimulationwithnon-Cliffordinputs:representtheinitialmagicstate
+as a state vector or as a probabilistic mixture of stabilizer states, and propagate through the
+Clifford circuit using a stabilizer simulator (e.g., a Stim-like library). This may require
+handling a small non-stabilizer component explicitly.
+•Pauli-twirled approximation:approximate the effect of the non-Clifford injection gate
+and noise as a Pauli channel acting on an otherwise stabilizer state. This is valid for esti-
+mating logical error rates when coherent phases are not the focus.
+In practice, many existing fault-tolerance simulation libraries support circuit-level noise on
+Clifford circuits and can be extended to handle a single magic-state qubit.
+3.2.2 CPU and GPU execution
+The simulations can be parallelized over many independent Monte Carlo samples. Each sample
+consists of:
+1. Sampling a noise realization according to the circuit-level noise model.
+2. Evolving the state (or stabilizer tableau) through the injection circuit.
+3. Computing the measured stabilizers and deciding acceptance or rejection.
+4. For accepted runs, determining whether a logical error has occurred (by comparing the final
+logical operator eigenvalues to the ideal case).
+Since these samples are embarrassingly parallel, they can run efficiently on:
+•Multi-core CPUs using thread-level parallelism (e.g., OpenMP, multiprocessing).
+•GPUs using CUDA, HIP, or other accelerator frameworks, particularly if the simulator sup-
+ports batched updates of many stabilizer tableaus in parallel.
+11
+
+--- Page 12 ---
+For moderate code distances (e.g.,d 1= 3,5,7) and target statistical precision (e.g., order
+10−4inpL), millions of samples per parameter point may be required. GPU acceleration can
+significantly reduce wall-clock time in such regimes.
+3.3 Simulation Algorithm Outline
+We outline a generic Monte Carlo procedure to estimatep L(P,θ)and the rejection probability
+prej(P,θ).
+3.3.1 Circuit construction
+For a chosen protocolPand noise parametersθ:
+1. Construct the full injection circuit as a list of time steps, where each time step contains a
+set of commuting operations (single-qubit gates, CNOTs, measurements).
+2. For each operation, record its type, target/control qubits, and position in the lattice (for
+potential connectivity-aware noise models).
+3.3.2 Single-sample simulation
+For each Monte Carlo sample:
+1. Initialize the physical qubits in their nominal states: the magic qubit in|m⟩, others in|0⟩or
+|+⟩. Sample and apply initialization errors according top I.
+2. For each time step in the circuit:
+2.(a) Apply the ideal Clifford operations of that time step to the stabilizer tableau or state
+representation.
+2.(b) Foreachoperation, samplewhetheranoiseeventoccurs; ifso, applythecorresponding
+Pauli error (or more general channel) to the tableau.
+3. Record the measurement outcomes for all stabilizer and data-qubit measurements.
+4. Apply the post-selection rule: if the outcomes violate any acceptance condition, label the
+run as rejected and discard it.
+5. For accepted runs, infer whether a logical error has occurred. This can be done by:
+•Comparing the final logical Pauli eigenvalues to those of the ideal encoded magic state.
+•Alternatively, decoding the final syndrome to estimate the most likely logical Pauli and
+checking whether it differs from identity.
+3.3.3 Estimators
+LetNbe the total number of Monte Carlo samples,N accthe number of accepted runs, and
+Nerrthe number of accepted runs with a logical error. Then estimators for the acceptance
+probability and conditional logical error rate are
+ˆpacc=Nacc
+N,(19)
+ˆpL=Nerr
+Nacc.(20)
+Standard binomial confidence intervals (e.g., Clopper–Pearson) can be used to estimate the
+statistical uncertainty in these quantities as functions ofN.
+12
+
+--- Page 13 ---
+3.4 Code Structure for Simulations
+3.4.1 Data structures
+A practical implementation (e.g., in Python with a C++ backend, or in C++ directly) can use
+the following data structures:
+•QubitLattice: stores the positions and indices of physical qubits in the rotated patch.
+•Stabilizer: stores the support and type (XorZ) of each stabilizer generator.
+•CircuitOp: represents a single operation (initialization, gate, measurement) with metadata.
+•Circuit: an ordered list ofCircuitOps grouped into time steps.
+•Tableau: a stabilizer tableau representation of the quantum state, with methods to apply
+Clifford gates and Pauli errors efficiently.
+3.4.2 Pseudo-code sketch
+A high-level pseudo-code sketch for the Monte Carlo loop is:
+for theta in noise_parameter_grid:
+P = choose_protocol(theta)
+circuit = build_injection_circuit(P)
+N_acc = 0
+N_err = 0
+for sample in range(N_samples):
+tableau = initialize_tableau(P)
+apply_initialization_noise(tableau, theta)
+accepted = True
+for timestep in circuit.timesteps:
+apply_ideal_gates(tableau, timestep)
+apply_noise(tableau, timestep, theta)
+record_measurements(tableau, timestep)
+if not acceptance_condition_satisfied():
+accepted = False
+if accepted:
+N_acc += 1
+if logical_error_occurred(tableau, P):
+N_err += 1
+p_acc_hat = N_acc / N_samples
+p_L_hat = N_err / max(N_acc, 1)
+store_results(theta, P, p_acc_hat, p_L_hat)
+3.4.3 GPU considerations
+OnaGPU,onecanbatchmanyindependentsamplesbyrepresentingmultiplestabilizertableaus
+in parallel. For example:
+•Represent each tableau as a set of bit-packed rows (forXandZcomponents) and store a
+batch of them in GPU memory.
+•Implement Clifford gate and Pauli-error updates as bitwise operations over 32- or 64-bit
+words, applied in parallel to the batch.
+13
+
+--- Page 14 ---
+•Use random-number generation on the GPU (e.g., cuRAND) to sample noise events per
+operation and per sample.
+The main complexity lies in handling measurements and post-selection efficiently across the
+batch, since different samples will be accepted or rejected at different times.
+3.5 Appendix: Example Analytic Coefficients
+Asaconcreteexample,consideradistance-3rotatedpatchwithMRinjection,underanunbiased
+depolarizing model with perfect single-qubit gates and measurement (p 1=p I=p M= 0).
+Following Lao–Criger, one finds that the leading-order logical error rate behaves as
+pMR
+L≈cMRp2
+2,(21)
+with a coefficientc MRthat can be obtained by counting the number of two-qubit Pauli errors
+on specific CNOTs that induce logical faults without triggering rejection.
+In our generalized setting, we would re-derive such coefficients for each candidate protocolP
+and then compare their performance under realistic biased and connectivity-constrained noise
+models.
+Acknowledgments
+This outline is designed as a starting point for developing a full-length manuscript. Detailed
+derivations of the analytic coefficients, explicit circuit diagrams, and extensive numerical results
+would be added in subsequent iterations.
+References
+[1] Y. Li, “A magic state’s fidelity can be superior to the operations that created it,”New J.
+Phys.17, 023037 (2015).
+[2] L. Lao and B. Criger, “Magic state injection on the rotated surface code,” inProceedings of
+the 19th ACM International Conference on Computing Frontiers(CF ’22), 2022.
+[3] N. Berthusen, D. Devulapalli, E. Schoute, A. M. Childs, M. J. Gullans, A. V. Gorshkov,
+and D. Gottesman, “Toward a 2D local implementation of quantum low-density parity-check
+codes,”PRX Quantum6, 010306 (2025).
+14

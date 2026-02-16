@@ -1,0 +1,61 @@
+================================================================================
+MAGIC STATE INJECTION: MANUSCRIPT DATA SUMMARY
+================================================================================
+
+Baseline Protocol: YL
+Number of Protocols: 4
+
+PROTOCOL SUMMARIES
+--------------------------------------------------------------------------------
+
+YL:
+  Logical error rate: p_L = 3.000e-03
+  Acceptance rate: p_acc = 0.950
+  Leading order: α₂ = 0.400
+  Logical bias: η_L = 1.0
+  Circuit depth: 12 cycles
+  CNOT count: 16
+
+CR:
+  Logical error rate: p_L = 2.500e-03
+  Acceptance rate: p_acc = 0.960
+  Leading order: α₂ = 0.600
+  Logical bias: η_L = 1.2
+  Circuit depth: 10 cycles
+  CNOT count: 14
+
+MR:
+  Logical error rate: p_L = 2.000e-03
+  Acceptance rate: p_acc = 0.970
+  Leading order: α₂ = 0.600
+  Logical bias: η_L = 1.5
+  Circuit depth: 12 cycles
+  CNOT count: 15
+
+Optimized:
+  Logical error rate: p_L = 1.200e-03
+  Acceptance rate: p_acc = 0.980
+  Leading order: α₂ = 0.350
+  Logical bias: η_L = 2.0
+  Circuit depth: 8 cycles
+  CNOT count: 12
+
+================================================================================
+COMPARATIVE METRICS
+--------------------------------------------------------------------------------
+
+Error Rate Improvements (vs baseline):
+  YL: 1.00x
+  CR: 1.20x
+  MR: 1.50x
+  Optimized: 2.50x
+
+Distillation Overhead Reductions (vs baseline):
+  YL: 1.00x
+  CR: 1.00x
+  MR: 1.00x
+  Optimized: 1.00x
+
+================================================================================
+Best Protocol: Optimized (1.00x overhead reduction)
+================================================================================
